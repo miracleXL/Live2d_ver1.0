@@ -125,6 +125,22 @@ ModelSettingJson.prototype.getLayout = function()
     return this.json[this.LAYOUT];
 }
 
+ModelSettingJson.prototype.setLayout = function(layout){
+    /* layout:{
+        width: 1,
+        height: 1,
+        x: 0,
+        y: 0,
+        center_x: 0,
+        center_y: 0,
+        top: 0,
+        bottom: 720,
+        left: 0,
+        right: 1280
+    } */
+    this.json[this.LAYOUT] = layout;
+}
+
 
 ModelSettingJson.prototype.getInitParamNum = function()
 {

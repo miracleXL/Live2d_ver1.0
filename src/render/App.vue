@@ -1,38 +1,40 @@
 <template>
-  <p>
-      <button id="btnChange" class="active">Change Model</button>
-  </p>
-  
-  <div>
-      <canvas id="glcanvas" width="680" height="940" 
-          style="border:dashed 1px #CCC">
-      </canvas>
-  </div>
-  
+  <button id="btnChange" class="active">Change Model</button>
+  <canvas id="glcanvas"></canvas>
   <div id="myconsole" style="color:#000">---- Log ----</div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
-import { sampleApp1 } from "./SampleApp1"
+import { LApp } from "./LApp"
+// import { sampleApp1 } from "./SampleApp1"
 
 export var lapp = null;
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    // Control
   },
   mounted(){
-    lapp = new sampleApp1();
+    lapp = new LApp();
+    // window.onresize = ()=>{
+    //   lapp.onResize();
+    // }
   }
 }
 </script>
 
 <style>
-.logo-box {
-  display: flex;
-  width: 100%;
-  justify-content: center;
+canvas{
+  position: absolute;
+  left: -2px;
+  top: -2px;
+  z-index: -1;
+  /* width: 100%;
+  height: 100%; */
+  background-size: 150%;
+  background-position: 50% 50%;
+  /* background-image: url(assets/background/back_class_normal.png); */
+  border: dashed 1px #CCC;
 }
 </style>

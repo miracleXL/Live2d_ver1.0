@@ -17,7 +17,8 @@ function L2DBaseModel()
     this.eyeBlink        = null; // L2DEyeBlink
     this.physics         = null; // L2DPhysics
     this.pose            = null; // L2DPose
-    this.debugMode       = false;
+    this.subtitles       = null;
+    this.debugMode       = true;
     this.initialized     = false;
     this.updating        = false;
     this.alpha           = 1;
@@ -289,6 +290,17 @@ L2DBaseModel.prototype.loadPhysics     = function(path/*String*/)
         console.warn(e);
     }
 }
+
+L2DBaseModel.prototype.loadSubtitles = function (path/*String*/) {
+    var thisRef = this;
+    try {
+        ajax(path, false, function (buf) {
+            thisRef.subtitles = JSON.parse(buf);
+        });
+    } catch (e) {
+        console.warn(e);
+    }
+};
 
 //============================================================
 //    L2DBaseModel # hitTestSimple()

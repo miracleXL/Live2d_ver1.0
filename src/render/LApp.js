@@ -7,7 +7,7 @@ window.onerror = function(msg, url, line, col, error) {
     l2dError(errmsg);
 }
 
-export class sampleApp1{
+export class LApp{
     constructor(){
         this.platform = window.navigator.platform.toLowerCase();
         
@@ -18,10 +18,10 @@ export class sampleApp1{
         this.gl = null;
         this.canvas = document.getElementById("glcanvas");
         
-        this.dragMgr = null; /*new L2DTargetPoint();*/ 
-        this.viewMatrix = null; /*new L2DViewMatrix();*/
-        this.projMatrix = null; /*new L2DMatrix44()*/
-        this.deviceToScreen = null; /*new L2DMatrix44();*/
+        this.dragMgr = new L2DTargetPoint(); /*new L2DTargetPoint();*/ 
+        this.viewMatrix = new L2DViewMatrix(); /*new L2DViewMatrix();*/
+        this.projMatrix = new L2DMatrix44(); /*new L2DMatrix44()*/
+        this.deviceToScreen = new L2DMatrix44(); /*new L2DMatrix44();*/
         
         this.drag = false; 
         this.oldLen = 0;    
@@ -31,14 +31,13 @@ export class sampleApp1{
         
         this.isModelShown = false;
         
-        
-        this.initL2dCanvas();
-        
-        
-        this.init();
+        this.initListener();
+
+        // this.init();
     }
 
-    initL2dCanvas(){
+    initListener(){
+        this.resizeCanvas();
         if(this.canvas.addEventListener) {
             this.canvas.addEventListener("mousewheel",(e)=>{this.mouseEvent(e)}, false);
             this.canvas.addEventListener("click", (e)=>{this.mouseEvent(e)}, false);
@@ -59,49 +58,15 @@ export class sampleApp1{
         
         let btnChangeModel = document.getElementById("btnChange");
         btnChangeModel.addEventListener("click", (e)=>{
-            this.changeModel();
+            this.init();
         });
     }
 
-    init()
-    {    
-        
-        var width = this.canvas.width;
-        var height = this.canvas.height;
-        
-        this.dragMgr = new L2DTargetPoint();
+    init(){
+        this.initView();
 
-        
-        var ratio = height / width;
-        var left = LAppDefine.VIEW_LOGICAL_LEFT;
-        var right = LAppDefine.VIEW_LOGICAL_RIGHT;
-        var bottom = -ratio;
-        var top = ratio;
+        // l2dLog('初始化成功')
 
-        this.viewMatrix = new L2DViewMatrix();
-
-        
-        this.viewMatrix.setScreenRect(left, right, bottom, top);
-        
-        
-        this.viewMatrix.setMaxScreenRect(LAppDefine.VIEW_LOGICAL_MAX_LEFT,
-                                        LAppDefine.VIEW_LOGICAL_MAX_RIGHT,
-                                        LAppDefine.VIEW_LOGICAL_MAX_BOTTOM,
-                                        LAppDefine.VIEW_LOGICAL_MAX_TOP); 
-
-        this.viewMatrix.setMaxScale(LAppDefine.VIEW_MAX_SCALE);
-        this.viewMatrix.setMinScale(LAppDefine.VIEW_MIN_SCALE);
-
-        this.projMatrix = new L2DMatrix44();
-        this.projMatrix.multScale(1, (width / height));
-
-        
-        this.deviceToScreen = new L2DMatrix44();
-        this.deviceToScreen.multTranslate(-width / 2.0, -height / 2.0);
-        this.deviceToScreen.multScale(2 / width, -2 / width);
-        
-        
-        
         this.gl = this.getWebGLContext(this.canvas);
         if (!this.gl) {
             l2dError("Failed to create WebGL context.");
@@ -112,9 +77,41 @@ export class sampleApp1{
 
         this.gl.clearColor(0.0, 0.0, 0.0, 0.0);
 
-        this.changeModel();
-        
+        this.live2DMgr.reloadFlg = true;
+        this.live2DMgr.initModels(this.gl);
+
         this.startDraw();
+    }
+
+    initView(){
+        let width = this.canvas.width;
+        let height = this.canvas.height;
+        let ratio = height / width;
+        let left = LAppDefine.VIEW_LOGICAL_LEFT;
+        let right = LAppDefine.VIEW_LOGICAL_RIGHT;
+        let bottom = -ratio;
+        let top = ratio;
+        console.log(`ratio:${ratio}`)
+
+        this.viewMatrix.setScreenRect(left, right, bottom, top);
+        this.viewMatrix.scale(LAppDefine.VIEW_SCALE, LAppDefine.VIEW_SCALE);
+        this.viewMatrix.setMaxScreenRect(LAppDefine.VIEW_LOGICAL_MAX_LEFT,
+                                        LAppDefine.VIEW_LOGICAL_MAX_RIGHT,
+                                        LAppDefine.VIEW_LOGICAL_MAX_BOTTOM,
+                                        LAppDefine.VIEW_LOGICAL_MAX_TOP);
+        this.viewMatrix.setMaxScale(LAppDefine.VIEW_MAX_SCALE);
+        this.viewMatrix.setMinScale(LAppDefine.VIEW_MIN_SCALE);
+
+        if(width > height){
+            const screenW = Math.abs(right - left);
+            this.deviceToScreen.multScale(screenW / width, -screenW / width);
+        }
+        else{
+            const screenH = Math.abs(top - bottom);
+            this.deviceToScreen.multScale(screenH / height, -screenH / height);
+        }
+        this.deviceToScreen.multTranslate(-width / 2.0, -height / 2.0);
+        this.projMatrix.scale( 1, width/height );
     }
 
     startDraw() {
@@ -152,6 +149,15 @@ export class sampleApp1{
         MatrixStack.multMatrix(this.projMatrix.getArray());
         MatrixStack.multMatrix(this.viewMatrix.getArray());
         MatrixStack.push();
+
+        let bg = this.live2DMgr.background;
+        if(bg){
+            if(bg.initialized && !bg.updating){
+                // console.log("开始绘制背景")
+                bg.update();
+                bg.draw(this.gl);
+            }
+        }
         
         for (var i = 0; i < this.live2DMgr.numModels(); i++)
         {
@@ -191,14 +197,14 @@ export class sampleApp1{
         this.live2DMgr.changeModel(this.gl);
     }
 
-    modelScaling(scale)
+    matrixScaling(scale)
     {   
         var isMaxScale = this.viewMatrix.isMaxScale();
         var isMinScale = this.viewMatrix.isMinScale();
-        
-        this.viewMatrix.adjustScale(0, 0, scale);
 
-        
+        // l2dLog(`缩放：${scale}`);
+        this.viewMatrix.adjustScale( 0, 0, scale);
+
         if (!isMaxScale)
         {
             if (this.viewMatrix.isMaxScale())
@@ -214,6 +220,10 @@ export class sampleApp1{
                 this.live2DMgr.minScaleEvent();
             }
         }
+    }
+
+    modelScaling(scale){
+        this.live2DMgr.modelScaling(scale, 0);
     }
 
     modelTurnHead(event)
@@ -334,7 +344,7 @@ export class sampleApp1{
                 
                 var len = Math.pow(touch1.pageX - touch2.pageX, 2) + Math.pow(touch1.pageY - touch2.pageY, 2);
                 if (this.oldLen - len < 0) this.modelScaling(1.025); 
-                else this.modelScaling(0.975); 
+                else this.modelScaling(0.975);
                 
                 this.oldLen = len;
             }
@@ -366,6 +376,22 @@ export class sampleApp1{
         return this.deviceToScreen.transformY(deviceY);
     }
 
+    resizeCanvas(){
+        this.canvas.lastWidth = this.canvas.width;
+        this.canvas.lastHeight = this.canvas.height;
+        // this.canvas.width = window.screen.availWidth;
+        // this.canvas.height = window.screen.availHeight;
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+    }
+
+    onResize(){
+        // l2dLog(`${this.canvas.height}/${this.canvas.width}`)
+        this.resizeCanvas();
+        // this.initView();
+        this.matrixScaling(this.canvas.width/this.canvas.lastWidth);
+    }
+
     getWebGLContext()
     {
         var NAMES = [ "webgl" , "experimental-webgl" , "webkit-3d" , "moz-webgl"];
@@ -378,7 +404,7 @@ export class sampleApp1{
             catch(e){}
         }
         return null;
-    };
+    }
 }
 
 
