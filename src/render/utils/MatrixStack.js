@@ -26,8 +26,8 @@ MatrixStack.reset = function()
 {
     this.depth = 0;
 }
-		
-		
+
+
 
 MatrixStack.loadIdentity = function()
 {
@@ -36,8 +36,8 @@ MatrixStack.loadIdentity = function()
         this.currentMatrix[i] = (i % 5 == 0) ? 1 : 0;
     }
 }
-		
-		
+
+
 
 MatrixStack.push = function()
 {    
@@ -56,8 +56,8 @@ MatrixStack.push = function()
 
     this.depth++;
 }
-		
-		
+
+
 
 MatrixStack.pop = function()
 {
@@ -74,15 +74,15 @@ MatrixStack.pop = function()
         this.currentMatrix[i] = this.matrixStack[offset + i];
     }
 }
-		
-		
+
+
 
 MatrixStack.getMatrix = function()
 {
     return this.currentMatrix;
 }
-		
-		
+
+
 
 MatrixStack.multMatrix = function(matNew)
 {

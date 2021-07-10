@@ -1,5 +1,6 @@
 <template>
-  <button id="btnChange" class="active">Change Model</button>
+  <button id="btnChangeModel" class="active">Change Model</button>
+  <button id="btnChangeScene" class="active">Change Scene</button>
   <canvas id="glcanvas"></canvas>
   <div id="myconsole" style="color:#000">---- Log ----</div>
 </template>

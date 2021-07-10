@@ -5,13 +5,13 @@ const fs = require("fs");
 
 export const LAppDefine = {
 
-    DEBUG_LOG : true,
+    DEBUG_LOG : false,
     DEBUG_MOUSE_LOG : false, 
     // DEBUG_DRAW_HIT_AREA : false, 
     // DEBUG_DRAW_ALPHA_MODEL : false, 
 
-    VIEW_WIDTH: window.screen.width,
-    VIEW_HEIGHT: window.screen.height,
+    VIEW_WIDTH: window.innerWidth,
+    VIEW_HEIGHT: window.innerHeight,
 
     VIEW_SCALE : 1.0,
     VIEW_MAX_SCALE : 2.0,
@@ -66,7 +66,7 @@ function searchModelJson(type/* true为model, false为background */, path, name)
         }
         loading--;
         if(loading === 0){
-            lapp.init();
+            lapp.initModels();
             console.log(l2dModels);
             console.log(backgroundModels);
         }

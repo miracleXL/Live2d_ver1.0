@@ -30,14 +30,11 @@ export class LApp{
         this.lastMouseY = 0;
         
         this.isModelShown = false;
-        
-        this.initListener();
 
-        // this.init();
+        this.init();
     }
 
     initListener(){
-        this.resizeCanvas();
         if(this.canvas.addEventListener) {
             this.canvas.addEventListener("mousewheel",(e)=>{this.mouseEvent(e)}, false);
             this.canvas.addEventListener("click", (e)=>{this.mouseEvent(e)}, false);
@@ -56,13 +53,21 @@ export class LApp{
             
         }
         
-        let btnChangeModel = document.getElementById("btnChange");
+        let btnChangeScene = document.getElementById("btnChangeScene");
+        btnChangeScene.addEventListener("click", (e)=>{
+            this.live2DMgr.reloadFlg = true;
+            this.live2DMgr.changeScene(this.gl);
+        });
+        let btnChangeModel = document.getElementById("btnChangeModel");
         btnChangeModel.addEventListener("click", (e)=>{
-            this.init();
+            this.live2DMgr.reloadFlg = true;
+            this.live2DMgr.changeModel(this.gl);
         });
     }
 
     init(){
+        this.resizeCanvas();
+        this.initListener();
         this.initView();
 
         // l2dLog('初始化成功')
@@ -77,6 +82,9 @@ export class LApp{
 
         this.gl.clearColor(0.0, 0.0, 0.0, 0.0);
 
+    }
+
+    initModels(){
         this.live2DMgr.reloadFlg = true;
         this.live2DMgr.initModels(this.gl);
 
@@ -169,32 +177,10 @@ export class LApp{
             {
                 model.update();
                 model.draw(this.gl);
-                
-                if (!this.isModelShown && i == this.live2DMgr.numModels()-1) {
-                    this.isModelShown = !this.isModelShown;
-                    var btnChange = document.getElementById("btnChange");
-                    btnChange.textContent = "Change Model";
-                    btnChange.removeAttribute("disabled");
-                    btnChange.setAttribute("class", "active");
-                }
             }
         }
         
         MatrixStack.pop();
-    }
-
-    changeModel()
-    {
-        var btnChange = document.getElementById("btnChange");
-        btnChange.setAttribute("disabled","disabled");
-        btnChange.setAttribute("class", "inactive");
-        btnChange.textContent = "Now Loading...";
-        this.isModelShown = false;
-        
-        this.live2DMgr.reloadFlg = true;
-        this.live2DMgr.count++;
-
-        this.live2DMgr.changeModel(this.gl);
     }
 
     matrixScaling(scale)
@@ -388,7 +374,7 @@ export class LApp{
     onResize(){
         // l2dLog(`${this.canvas.height}/${this.canvas.width}`)
         this.resizeCanvas();
-        // this.initView();
+        this.init();
         this.matrixScaling(this.canvas.width/this.canvas.lastWidth);
     }
 

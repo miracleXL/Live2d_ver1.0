@@ -314,8 +314,8 @@ LAppModel.prototype.startMotion = function(name, no, priority)
     }
     else if (!this.mainMotionManager.reserveMotion(priority))
     {
-        if (LAppDefine.DEBUG_LOG)
-            console.log("Motion is running.")
+        // if (LAppDefine.DEBUG_LOG)
+        //     console.log("Motion is running.")
         return;
     }
 
@@ -350,8 +350,8 @@ LAppModel.prototype.setFadeInFadeOut = function(name, no, priority, motion)
     motion.setFadeOut(this.modelSetting.getMotionFadeOut(name, no));
     
     
-    if (LAppDefine.DEBUG_LOG)
-            console.log("Start motion : " + motionName);
+    // if (LAppDefine.DEBUG_LOG)
+    //         console.log("Start motion : " + motionName);
 
     if (this.modelSetting.getMotionSound(name, no) == null)
     {

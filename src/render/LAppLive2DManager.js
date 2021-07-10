@@ -12,7 +12,10 @@ export function LAppLive2DManager()
     this.modelNames = [];
     this.backgroundNames = [];
 
-    this.count = 0;
+    this.gl = null;
+
+    this.bgIndex = 0;
+    this.modelIndex = 0;
     this.reloadFlg = false; 
     
     Live2D.init();
@@ -22,7 +25,7 @@ export function LAppLive2DManager()
 
 LAppLive2DManager.prototype.initModels = function(gl){
     this.createBackground();
-    this.background.load(gl, backgroundModels[this.backgroundNames[4]], ()=>{
+    this.background.load(gl, backgroundModels[this.backgroundNames[1]], ()=>{
         this.createModel();
         this.models[0].load(gl, l2dModels[this.modelNames[0]]);
         console.log(this.background);
@@ -47,59 +50,26 @@ LAppLive2DManager.prototype.changeScene = function(gl)
 {
     if (this.reloadFlg)
     {
-        this.reloadFlg = false;
         this.background.release(gl);
-        this.background.load(gl, );
+        this.bgIndex = (this.bgIndex + 1) % this.backgroundNames.length;
+        l2dLog(backgroundModels[this.backgroundNames[this.bgIndex]]);
+        this.background.load(gl, backgroundModels[this.backgroundNames[this.bgIndex]]);
+        this.reloadFlg = false;
     }
 };
 
 
-// LAppLive2DManager.prototype.changeModel = function(gl)
-// {
-//     // console.log("--> LAppLive2DManager.update(gl)");
-    
-//     if (this.reloadFlg)
-//     {
-        
-//         this.reloadFlg = false;
-//         var no = parseInt(this.count % 4);
-
-//         var thisRef = this;
-//         switch (no)
-//         {
-//             case 0: 
-//                 this.releaseModel(0, gl);
-//                 this.releaseModel(1, gl);
-//                 this.createModel();
-//                 this.models[0].load(gl, l2dModels.M4A1);
-//                 break;
-//             case 1: 
-//                 this.releaseModel(0, gl);
-//                 this.createModel();
-//                 this.models[0].load(gl, l2dModels.MODEL_SHIZUKU);
-//                 break;
-//             case 2: 
-//                 this.releaseModel(0, gl);
-//                 this.createModel();
-//                 this.models[0].load(gl, l2dModels.MODEL_WANKO);            
-//                 break;
-//             case 3: 
-//                 this.releaseModel(0, gl);
-                
-//                 // 一体目のモデル
-//                 this.createModel();
-//                 this.models[0].load(gl, l2dModels.MODEL_HARU_A, function() {
-//                     // 二体目のモデル
-//                     thisRef.createModel();
-//                     thisRef.models[1].load(gl, l2dModels.MODEL_HARU_B);
-//                 });
-                
-//                 break;
-//             default:
-//                 break;
-//         }
-//     }
-// };
+LAppLive2DManager.prototype.changeModel = function(gl)
+{
+    if (this.reloadFlg)
+    {
+        this.models[0].release(gl);
+        this.modelIndex = (this.modelIndex + 1) % this.modelNames.length;
+        l2dLog(l2dModels[this.modelNames[this.modelIndex]]);
+        this.models[0].load(gl, l2dModels[this.modelNames[this.modelIndex]]);
+        this.reloadFlg = false;
+    }
+};
 
 
 LAppLive2DManager.prototype.getModel = function(no)
@@ -202,4 +172,8 @@ LAppLive2DManager.prototype.tapEvent = function(x, y)
 
 LAppLive2DManager.prototype.modelScaling = function(scale, no){
     this.models[no].scale(scale);
+}
+
+LAppLive2DManager.prototype.setGL = function (gl) {
+    this.gl = gl;
 }

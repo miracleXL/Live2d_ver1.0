@@ -67,6 +67,10 @@ LAppBackground.prototype.load = function(gl, modelSettingPath, callback)
                             thisRef.expressions = {};
                         }
 
+                        if (!thisRef.eyeBlink) {
+                            //thisRef.eyeBlink = new L2DEyeBlink();
+                        }
+
                         if (thisRef.modelSetting.getPhysicsFile() != null)
                         {
                             thisRef.loadPhysics(thisRef.modelHomeDir + 
@@ -148,7 +152,10 @@ LAppBackground.prototype.release = function(gl)
 LAppBackground.prototype.preloadMotionGroup = function(name)
 {
     var thisRef = this;
-    
+
+    let motions = this.modelSetting.getMotions(name);
+    if (motions === undefined) return false;
+
     for (var i = 0; i < this.modelSetting.getMotionNum(name); i++)
     {
         var file = this.modelSetting.getMotionFile(name, i);
@@ -177,8 +184,7 @@ LAppBackground.prototype.update = function()
     
     if (this.mainMotionManager.isFinished())
     {
-        if(this.modelSetting.getMotionNum > 0)
-            this.startRandomMotion(LAppDefine.MOTION_GROUP_IDLE, LAppDefine.PRIORITY_IDLE);
+        this.startRandomMotion(LAppDefine.MOTION_GROUP_IDLE, LAppDefine.PRIORITY_IDLE);
     }
 
     //-----------------------------------------------------------------		
@@ -277,6 +283,7 @@ LAppBackground.prototype.setRandomExpression = function()
 
 LAppBackground.prototype.startRandomMotion = function(name, priority)
 {
+    if(this.modelSetting.getMotions(name) === undefined) return false;
     var max = this.modelSetting.getMotionNum(name);
     var no = parseInt(Math.random() * max);
     this.startMotion(name, no, priority);
@@ -287,6 +294,7 @@ LAppBackground.prototype.startRandomMotion = function(name, priority)
 LAppBackground.prototype.startMotion = function(name, no, priority)
 {
     // console.log("startMotion : " + name + " " + no + " " + priority);
+    if(this.modelSetting.getMotions(name) === undefined) return false;
     
     var motionName = this.modelSetting.getMotionFile(name, no);
     

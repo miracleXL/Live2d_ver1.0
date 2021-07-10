@@ -18,7 +18,7 @@ function L2DBaseModel()
     this.physics         = null; // L2DPhysics
     this.pose            = null; // L2DPose
     this.subtitles       = null;
-    this.debugMode       = true;
+    this.debugMode       = false;
     this.initialized     = false;
     this.updating        = false;
     this.alpha           = 1;
